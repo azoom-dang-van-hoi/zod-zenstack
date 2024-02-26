@@ -17,12 +17,8 @@ import {
   ThisExpr,
   UnaryExpr,
 } from "@zenstackhq/language/ast"
-import {
-  ExpressionContext,
-  getLiteral,
-  isFromStdlib,
-  isFutureExpr,
-} from "@zenstackhq/sdk"
+import { ExpressionContext, getLiteral, isFutureExpr } from "@zenstackhq/sdk"
+import { isFromStdlib } from "./is-std-lib"
 import { match, P } from "ts-pattern"
 import { getIdFields } from "./ast"
 
@@ -168,6 +164,30 @@ export class TypeScriptExpressionTransformer {
     return handler.value.call(this, args, normalizeUndefined)
   }
 
+  @func("toLowerCase")
+  private _toLowerCase(args: Expression[]) {
+    const field = this.transform(args[0], false)
+    return `${field}?.toLowerCase()`
+  }
+
+  @func("toUpperCase")
+  private _toUpperCase(args: Expression[]) {
+    const field = this.transform(args[0], false)
+    return `${field}?.toUpperCase()`
+  }
+
+  @func("getConstantValue")
+  private _getConstantValue(args: Expression[]) {
+    const name = this.transform(args[0], false).replace(/\'/g, "")
+    const key = args[1]
+      ? this.transform(args[1], false).replace(/\'/g, "")
+      : null
+    if (!key) {
+      return name
+    }
+    return `${name}${key.startsWith("[") ? "" : "."}${key}`
+  }
+
   // #region function invocation handlers
 
   // arguments have been type-checked
@@ -191,13 +211,7 @@ export class TypeScriptExpressionTransformer {
   @func("vContains")
   private _contains(args: Expression[], normalizeUndefined: boolean) {
     const field = this.transform(args[0], false)
-    const caseInsensitive = getLiteral<boolean>(args[2]) === true
-    let result: string
-    if (caseInsensitive) {
-      result = `${field}?.toLowerCase().includes(${this.transform(args[1], normalizeUndefined)}?.toLowerCase())`
-    } else {
-      result = `${field}?.includes(${this.transform(args[1], normalizeUndefined)})`
-    }
+    const result = `${field}?.includes(${this.transform(args[1], normalizeUndefined)})`
     return this.ensureBoolean(result)
   }
 

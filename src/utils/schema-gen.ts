@@ -4,7 +4,6 @@ import {
   getAttributeArg,
   getAttributeArgLiteral,
   getLiteral,
-  isFromStdlib,
 } from "@zenstackhq/sdk"
 import {
   DataModel,
@@ -22,6 +21,7 @@ import {
   TypeScriptExpressionTransformer,
   TypeScriptExpressionTransformerError,
 } from "./typescript-expression-transformer"
+import { isFromStdlib } from './is-std-lib'
 
 export function makeFieldSchema(field: DataModelField, respectDefault = false) {
   if (isDataModel(field.type.reference?.ref)) {
