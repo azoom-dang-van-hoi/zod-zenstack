@@ -387,6 +387,7 @@ async function generateModelSchema(
   project: Project,
   output: string
 ) {
+  let importedConstants = new Set()
   const schemaName = `${upperCaseFirst(model.name)}.schema`
   const sf = project.createSourceFile(
     path.join(output, "models", `${schemaName}.ts`),
@@ -487,13 +488,12 @@ async function generateModelSchema(
     }
 
     // compile "@@validate" to ".refine"
-    const refinements = makeValidationRefinements(model)
+    const { refinements, importedConstants: constants } =
+      makeValidationRefinements(model)
+    Array.from(constants).forEach((val) => importedConstants.add(val))
     let refineFuncName: string | undefined
     if (refinements.length > 0) {
       refineFuncName = `refine${upperCaseFirst(model.name)}`
-      writer.writeLine(`const CONTRACT_STATUS = {
-        cancellation: 1
-    }`)
       writer.writeLine(
         `export function ${refineFuncName}<T, D extends z.ZodTypeDef>(schema: z.ZodType<T, D, T>) { return schema${refinements.join(
           "\n"
@@ -640,6 +640,14 @@ async function generateModelSchema(
     writer.writeLine(
       `export const ${upperCaseFirst(model.name)}UpdateSchema = ${updateSchema};`
     )
+  })
+
+  const fullText = sf.getFullText()
+
+  sf.replaceWithText(writer => {
+    const importedString = `import { ${Array.from(importedConstants).join(",")}} from '../constants'`
+    writer.writeLine(importedString)
+    writer.writeLine(fullText)
   })
 
   return schemaName

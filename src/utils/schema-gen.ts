@@ -21,7 +21,7 @@ import {
   TypeScriptExpressionTransformer,
   TypeScriptExpressionTransformerError,
 } from "./typescript-expression-transformer"
-import { isFromStdlib } from './is-std-lib'
+import { isFromStdlib } from "./is-std-lib"
 
 export function makeFieldSchema(field: DataModelField, respectDefault = false) {
   if (isDataModel(field.type.reference?.ref)) {
@@ -207,9 +207,8 @@ function makeZodSchema(field: DataModelField) {
 }
 
 export function makeValidationRefinements(model: DataModel) {
-  const attrs = model.attributes.filter(
-    (attr) => attr.decl.ref?.name === "@@v"
-  )
+  const attrs = model.attributes.filter((attr) => attr.decl.ref?.name === "@@v")
+  let importedConstants = new Set()
   const refinements = attrs
     .map((attr) => {
       const valueArg = getAttributeArg(attr, "value")
@@ -223,10 +222,14 @@ export function makeValidationRefinements(model: DataModel) {
         : ""
 
       try {
-        const expr = new TypeScriptExpressionTransformer({
+        const expressionTransformer = new TypeScriptExpressionTransformer({
           context: ExpressionContext.ValidationRule,
           fieldReferenceContext: "value",
-        }).transform(valueArg)
+        })
+        const expr = expressionTransformer.transform(valueArg)
+        expressionTransformer.importedConstants.forEach((name) =>
+          importedConstants.add(name)
+        )
         return `.refine((value: any) => ${expr}${message})`
       } catch (err) {
         if (err instanceof TypeScriptExpressionTransformerError) {
@@ -238,7 +241,7 @@ export function makeValidationRefinements(model: DataModel) {
     })
     .filter((r) => !!r)
 
-  return refinements
+  return { refinements, importedConstants }
 }
 
 function getAttrLiteralArg<T extends string | number>(

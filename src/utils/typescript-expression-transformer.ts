@@ -61,6 +61,7 @@ export class TypeScriptExpressionTransformer {
    *
    * @param isPostGuard indicates if we're writing for post-update conditions
    */
+  importedConstants: Set<string> = new Set()
   constructor(private readonly options: Options) {}
 
   /**
@@ -179,9 +180,10 @@ export class TypeScriptExpressionTransformer {
   @func("getConstantValue")
   private _getConstantValue(args: Expression[]) {
     const name = this.transform(args[0], false).replace(/\'/g, "")
+    this.importedConstants.add(name)
     const key = args[1]
-      ? this.transform(args[1], false).replace(/\'/g, "")
-      : null
+    ? this.transform(args[1], false).replace(/\'/g, "")
+    : null
     if (!key) {
       return name
     }
