@@ -32,7 +32,7 @@ import {
 import { promises as fs } from "fs"
 import { streamAllContents } from "langium"
 import path from "path"
-import { Project } from "ts-morph"
+import { Project, Writers } from "ts-morph"
 import { upperCaseFirst } from "upper-case-first"
 import { name } from "."
 import { getDefaultOutputFolder } from "./utils/get-node-module-folder"
@@ -387,7 +387,8 @@ async function generateModelSchema(
   project: Project,
   output: string
 ) {
-  let importedConstants = new Set()
+  const importedConstants: Set<string> = new Set()
+  const importedLodashFunctions: Set<string> = new Set()
   const schemaName = `${upperCaseFirst(model.name)}.schema`
   const sf = project.createSourceFile(
     path.join(output, "models", `${schemaName}.ts`),
@@ -488,9 +489,15 @@ async function generateModelSchema(
     }
 
     // compile "@@validate" to ".refine"
-    const { refinements, importedConstants: constants } =
-      makeValidationRefinements(model)
+    const {
+      refinements,
+      importedConstants: constants,
+      importedLodashFunctions: lodashFunctions,
+    } = makeValidationRefinements(model)
     Array.from(constants).forEach((val) => importedConstants.add(val))
+    Array.from(lodashFunctions).forEach((val) =>
+      importedLodashFunctions.add(val)
+    )
     let refineFuncName: string | undefined
     if (refinements.length > 0) {
       refineFuncName = `refine${upperCaseFirst(model.name)}`
@@ -644,9 +651,15 @@ async function generateModelSchema(
 
   const fullText = sf.getFullText()
 
-  sf.replaceWithText(writer => {
-    const importedString = `import { ${Array.from(importedConstants).join(",")}} from '../constants'`
-    writer.writeLine(importedString)
+  sf.replaceWithText((writer) => {
+    if (importedConstants.size > 0) {
+      const importedString = `import { ${Array.from(importedConstants).join(",")}} from '../constants'`
+      writer.writeLine(importedString)
+    }
+    if (importedLodashFunctions.size > 0) {
+      const importedString = `import { ${Array.from(importedLodashFunctions).join(",")}} from 'lodash'`
+      writer.writeLine(importedString)
+    }
     writer.writeLine(fullText)
   })
 

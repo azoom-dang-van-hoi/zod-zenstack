@@ -208,7 +208,8 @@ function makeZodSchema(field: DataModelField) {
 
 export function makeValidationRefinements(model: DataModel) {
   const attrs = model.attributes.filter((attr) => attr.decl.ref?.name === "@@v")
-  let importedConstants = new Set()
+  const importedConstants: Set<string> = new Set()
+  const importedLodashFunctions: Set<string> = new Set()
   const refinements = attrs
     .map((attr) => {
       const valueArg = getAttributeArg(attr, "value")
@@ -230,6 +231,9 @@ export function makeValidationRefinements(model: DataModel) {
         expressionTransformer.importedConstants.forEach((name) =>
           importedConstants.add(name)
         )
+        expressionTransformer.importedLodashFunctions.forEach((name) =>
+          importedLodashFunctions.add(name)
+        )
         return `.refine((value: any) => ${expr}${message})`
       } catch (err) {
         if (err instanceof TypeScriptExpressionTransformerError) {
@@ -241,7 +245,7 @@ export function makeValidationRefinements(model: DataModel) {
     })
     .filter((r) => !!r)
 
-  return { refinements, importedConstants }
+  return { refinements, importedConstants, importedLodashFunctions }
 }
 
 function getAttrLiteralArg<T extends string | number>(

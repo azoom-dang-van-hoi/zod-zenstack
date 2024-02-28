@@ -56,3 +56,44 @@ function vUrl(field: String): Boolean {
  */
 function vContains(field: Any, search: Any): Boolean {
 } @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value starts with the search string
+ */
+function startsWith(field: String, search: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value ends with the search string
+ */
+function endsWith(field: String, search: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) has every element of the search list
+ */
+function vHasEvery(field: Any[], search: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) has at least one element of the search list
+ */
+function vHasSome(field: Any[], search: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) is empty
+ */
+function vIsEmpty(field: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+
+function sum(fields: Any, key: String?): Float {
+} @@@expressionContext([ValidationRule])
+
+function min(fields: Any): Int {
+} @@@expressionContext([ValidationRule])
+
+function minBy(fields: Any[], key: String): Int {
+} @@@expressionContext([ValidationRule])
+

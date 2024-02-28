@@ -62,6 +62,7 @@ export class TypeScriptExpressionTransformer {
    * @param isPostGuard indicates if we're writing for post-update conditions
    */
   importedConstants: Set<string> = new Set()
+  importedLodashFunctions: Set<string> = new Set()
   constructor(private readonly options: Options) {}
 
   /**
@@ -101,6 +102,7 @@ export class TypeScriptExpressionTransformer {
         return this.binary(expr as BinaryExpr, normalizeUndefined)
 
       default:
+        console.log(expr)
         throw new TypeScriptExpressionTransformerError(
           `Unsupported expression type: ${expr.$type}`
         )
@@ -165,14 +167,14 @@ export class TypeScriptExpressionTransformer {
     return handler.value.call(this, args, normalizeUndefined)
   }
 
-  @func("toLowerCase")
-  private _toLowerCase(args: Expression[]) {
+  @func("lowerCase")
+  private _lowerCase(args: Expression[]) {
     const field = this.transform(args[0], false)
     return `${field}?.toLowerCase()`
   }
 
-  @func("toUpperCase")
-  private _toUpperCase(args: Expression[]) {
+  @func("upperCase")
+  private _upperCase(args: Expression[]) {
     const field = this.transform(args[0], false)
     return `${field}?.toUpperCase()`
   }
@@ -282,6 +284,32 @@ export class TypeScriptExpressionTransformer {
     const field = this.transform(args[0], false)
     const result = `(!${field} || ${field}?.length === 0)`
     return this.ensureBoolean(result)
+  }
+
+  @func('sum')
+  private _sum(args: Expression[]) {
+    const field = this.transform(args[0], false)
+    const key = args[1] ? this.transform(args[1], false) : null
+    return `Array.isArray(${field}) && ${field}?.reduce((acc, item) => {
+      const value = ${key ? `item[${key}]` : 'item'}
+      return acc + (typeof value === 'number' ? value : 0)
+    }, 0)`
+  }
+
+  @func('min')
+  private _min(args: Expression[]) {
+    const field = this.transform(args[0], false)
+    return `Array.isArray(${field}) && ${field}?.reduce((acc, item) => {
+      return acc > item ? item : acc
+    })`
+  }
+
+  @func('minBy')
+  private _minBy(args: Expression[]) {
+    const field = this.transform(args[0], false)
+    const key = this.transform(args[1], false)
+    this.importedLodashFunctions.add('minBy')
+    return `Array.isArray(${field}) && minBy(${field}, ${key})`
   }
 
   private ensureBoolean(expr: string) {
