@@ -1,0 +1,51 @@
+{
+  "name": "@azoom-dang-van-hoi/zod-zenstack",
+  "version": "0.0.2",
+  "main": "dist/index.js",
+  "author": "azoom-dang-van-hoi <dang.van.hoi@azoom.jp>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azoom-dang-van-hoi/zod-zenstack.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "MIT",
+  "files": [
+    "package.json",
+    "dist/*"
+  ],
+  "scripts": {
+    "build": "tsc && cp src/lib.zmodel dist/lib.zmodel"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/semver": "^7.3.13",
+    "@types/strip-color": "^0.1.0",
+    "@types/tmp": "^0.2.3",
+    "@types/uuid": "^8.3.4",
+    "@types/vscode": "^1.56.0",
+    "@vscode/vsce": "^2.19.0",
+    "prisma": "^5.10.2"
+  },
+  "dependencies": {
+    "@prisma/generator-helper": "^5.10.2",
+    "@zenstackhq/sdk": "^1.9.0",
+    "langium": "1.3.1",
+    "lodash": "^4.17.21",
+    "lower-case-first": "^2.0.2",
+    "semver": "^7.5.2",
+    "tiny-invariant": "^1.3.1",
+    "ts-morph": "^16.0.0",
+    "ts-pattern": "^4.3.0",
+    "upper-case-first": "^2.0.2",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^1.5.0"
+  },
+  "types": "./dist/index.d.ts",
+  "description": "A custom zenstack generator that creates Zod schemas from your Zenstack model.",
+  "bugs": {
+    "url": "https://github.com/azoom-dang-van-hoi/zod-zenstack/issues"
+  },
+  "homepage": "https://github.com/azoom-dang-van-hoi/zod-zenstack#readme"
+}

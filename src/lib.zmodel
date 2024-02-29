@@ -1,0 +1,99 @@
+abstract model ConstantModel {
+    id Int @id @default(autoincrement())
+
+    @@ignore
+}
+
+attribute @@@v()
+
+attribute @@v(_ value: Boolean, _ message: String?) @@@v
+
+attribute @@defineConstant(_ name: String, _ constant: Any) @@@v
+
+attribute @vLength(_ min: Int, _ max: Int?) @@@targetField([StringField]) @@@v
+
+function getConstantValue(constantName: String, key: String?): Any {
+} @@@expressionContext([ValidationRule])
+
+function toLowerCase(field: String?): String {
+} @@@expressionContext([ValidationRule])
+
+function toUpperCase(field: String?): String {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates length of a string field.
+ */
+function vLength(field: String, min: Int, max: Int?): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates a string field value matches a regex.
+ */
+function vRegex(field: String, regex: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates a string field value is a valid email address.
+ */
+function vEmail(field: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates a string field value is a valid ISO datetime.
+ */
+function vDatetime(field: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates a string field value is a valid url.
+ */
+function vUrl(field: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * Validates a string field value is a valid url.
+ */
+function vContains(field: Any, search: Any): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value starts with the search string
+ */
+function startsWith(field: String, search: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value ends with the search string
+ */
+function endsWith(field: String, search: String): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) has every element of the search list
+ */
+function vHasEvery(field: Any[], search: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) has at least one element of the search list
+ */
+function vHasSome(field: Any[], search: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+/**
+ * If the field value (a list) is empty
+ */
+function vIsEmpty(field: Any[]): Boolean {
+} @@@expressionContext([ValidationRule])
+
+
+function sum(fields: Any, key: String?): Float {
+} @@@expressionContext([ValidationRule])
+
+function min(fields: Any): Int {
+} @@@expressionContext([ValidationRule])
+
+function minBy(fields: Any[], key: String): Int {
+} @@@expressionContext([ValidationRule])
+
